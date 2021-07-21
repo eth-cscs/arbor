@@ -19,6 +19,7 @@ struct simd_traits<generic<T, N>> {
     using scalar_type = T;
     using vector_type = std::array<T, N>;
     using mask_impl = generic<bool, N>;
+    static constexpr unsigned min_align = alignof(vector_type);
 };
 
 template <typename T, unsigned N>

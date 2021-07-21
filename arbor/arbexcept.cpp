@@ -134,5 +134,13 @@ bad_catalogue_error::bad_catalogue_error(const std::string &fn, const std::strin
       failed_call{call}
 {}
 
+unsupported_abi_error::unsupported_abi_error(size_t v):
+    arbor_exception(pprintf("ABI version is not supported by this version of arbor '{}'", v)),
+    version{v} {}
+
+bad_alignment::bad_alignment(size_t a):
+    arbor_exception(pprintf("Mechanism reported unsupported alignment '{}'", a)),
+    alignment{a} {}
+
 } // namespace arb
 

@@ -37,6 +37,8 @@ struct simd_traits<sve_mask> {
     using scalar_type = bool;
     using vector_type = svbool_t;
     using mask_impl = sve_mask;
+    // alignof not necessarily defined for sizeless types.
+    static constexpr unsigned min_align = alignof(scalar_type);
 };
 
 template <>
@@ -45,6 +47,8 @@ struct simd_traits<sve_double> {
     using scalar_type = double;
     using vector_type = svfloat64_t;
     using mask_impl = sve_mask;
+    // alignof not necessarily defined for sizeless types.
+    static constexpr unsigned min_align = alignof(scalar_type);
 };
 
 template <>
@@ -53,6 +57,8 @@ struct simd_traits<sve_int> {
     using scalar_type = int32_t;
     using vector_type = svint64_t;
     using mask_impl = sve_mask;
+    // alignof not necessarily defined for sizeless types.
+    static constexpr unsigned min_align = alignof(scalar_type);
 };
 
 struct sve_mask {
@@ -811,7 +817,15 @@ static int width(const svint64_t& v) {
 };
 
 template <typename S, typename std::enable_if_t<detail::is_sve<S>::value, int> = 0> 
+static int min_align(const S& v) {
+    return typename detail::simd_traits<typename sve_type_to_impl<S>::type>::min_align;
+};
+
+template <typename S, typename std::enable_if_t<detail::is_sve<S>::value, int> = 0> 
 static int width() { S v; return width(v); }
+
+template <typename S, typename std::enable_if_t<detail::is_sve<S>::value, int> = 0> 
+static int min_align() { S v; return min_align(v); }
 
 namespace detail {
 

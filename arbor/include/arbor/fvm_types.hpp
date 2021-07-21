@@ -1,14 +1,13 @@
 #pragma once
 
+#include <arbor/arb_types.h>
 #include <arbor/common_types.hpp>
-
-// Basic types shared across FVM implementations/backends.
 
 namespace arb {
 
-using fvm_value_type = double;
-using fvm_size_type = cell_local_size_type;
-using fvm_index_type = int;
+using fvm_value_type = arb_value_type;
+using fvm_size_type  = arb_size_type;
+using fvm_index_type = arb_index_type;
 
 struct fvm_gap_junction {
     using value_type = fvm_value_type;
@@ -19,7 +18,6 @@ struct fvm_gap_junction {
 
     fvm_gap_junction() {}
     fvm_gap_junction(std::pair<index_type, index_type> l, value_type w): loc(l), weight(w) {}
-
 };
 
 } // namespace arb

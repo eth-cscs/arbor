@@ -18,9 +18,12 @@ namespace detail {
 struct avx_int4;
 struct avx_double4;
 
+static constexpr unsigned avx_min_align = 16;
+
 template <>
 struct simd_traits<avx_int4> {
     static constexpr unsigned width = 4;
+    static constexpr unsigned min_align = avx_min_align;
     using scalar_type = std::int32_t;
     using vector_type = __m128i;
     using mask_impl = avx_int4;
@@ -29,6 +32,7 @@ struct simd_traits<avx_int4> {
 template <>
 struct simd_traits<avx_double4> {
     static constexpr unsigned width = 4;
+    static constexpr unsigned min_align = avx_min_align;
     using scalar_type = double;
     using vector_type = __m256d;
     using mask_impl = avx_double4;
@@ -694,6 +698,7 @@ struct avx2_double4;
 template <>
 struct simd_traits<avx2_int4> {
     static constexpr unsigned width = 4;
+    static constexpr unsigned min_align = avx_min_align;
     using scalar_type = std::int32_t;
     using vector_type = __m128i;
     using mask_impl = avx_int4;
@@ -702,6 +707,7 @@ struct simd_traits<avx2_int4> {
 template <>
 struct simd_traits<avx2_double4> {
     static constexpr unsigned width = 4;
+    static constexpr unsigned min_align = avx_min_align;
     using scalar_type = double;
     using vector_type = __m256d;
     using mask_impl = avx2_double4;

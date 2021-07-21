@@ -113,7 +113,7 @@ namespace maputil_impl {
     }
 }
 
-// Return copy of value associated with key, wrapped in std::optional, or std::nullopty.
+// Return copy of value associated with key, wrapped in std::optional, or std::nullopt.
 
 template <typename C, typename Key, typename Eq>
 auto value_by_key(C&& c, const Key& k, Eq eq) {

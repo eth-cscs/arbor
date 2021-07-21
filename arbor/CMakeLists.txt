@@ -3,8 +3,6 @@
 set(arbor_sources
     arbexcept.cpp
     assert.cpp
-    backends/multicore/fvm.cpp
-    backends/multicore/mechanism.cpp
     backends/multicore/shared_state.cpp
     communication/communicator.cpp
     communication/dry_run_context.cpp
@@ -27,6 +25,7 @@ set(arbor_sources
     lif_cell_group.cpp
     mc_cell_group.cpp
     mechcat.cpp
+    mechinfo.cpp
     memory/gpu_wrappers.cpp
     memory/util.cpp
     morph/embed_pwlin.cpp
@@ -63,9 +62,6 @@ set(arbor_sources
 
 if(ARB_WITH_GPU)
     list(APPEND arbor_sources
-        backends/gpu/fvm.cpp
-        backends/gpu/mechanism.cpp
-        backends/gpu/mechanism.cu
         backends/gpu/shared_state.cpp
         backends/gpu/stimulus.cu
         backends/gpu/threshold_watcher.cu

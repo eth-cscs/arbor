@@ -24,6 +24,7 @@ struct simd_traits<neon_double2> {
     using scalar_type = double;
     using vector_type = float64x2_t;
     using mask_impl = neon_double2;  // int64x2_t?
+    static constexpr unsigned min_align = alignof(vector_type);
 };
 
 template <>
@@ -32,6 +33,7 @@ struct simd_traits<neon_int2> {
     using scalar_type = int32_t;
     using vector_type = int32x2_t;
     using mask_impl = neon_int2;  // int64x2_t
+    static constexpr unsigned min_align = alignof(vector_type);
 };
 
 struct neon_int2 : implbase<neon_int2> {
