@@ -152,4 +152,16 @@ struct bad_catalogue_error: arbor_exception {
     std::string failed_call;
 };
 
+// ABI errors
+
+struct bad_alignment: arbor_exception {
+    bad_alignment(size_t);
+    size_t alignment;
+};
+
+struct unsupported_abi_error: arbor_exception {
+    unsupported_abi_error(size_t);
+    size_t version;
+};
+
 } // namespace arb

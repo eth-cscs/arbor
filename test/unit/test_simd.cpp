@@ -98,6 +98,17 @@ struct simd_value: public ::testing::Test {};
 
 TYPED_TEST_CASE_P(simd_value);
 
+// Test agreement between simd::width(), simd::min_align() and corresponding type attributes.
+TYPED_TEST_P(simd_value, meta) {
+    using simd = TypeParam;
+    using scalar = typename simd::scalar_type;
+
+    ASSERT_EQ((int)simd::width, ::arb::simd::width(simd{}));
+    ASSERT_EQ(simd::min_align, ::arb::simd::min_align(simd{}));
+
+    EXPECT_LE(alignof(scalar), simd::min_align);
+}
+
 // Initialization and element access.
 TYPED_TEST_P(simd_value, elements) {
     using simd = TypeParam;
@@ -577,7 +588,7 @@ TYPED_TEST_P(simd_value, simd_array_cast) {
     }
 }
 
-REGISTER_TYPED_TEST_CASE_P(simd_value, elements, element_lvalue, copy_to_from, copy_to_from_masked, construct_masked, arithmetic, compound_assignment, comparison, mask_elements, mask_element_lvalue, mask_copy_to_from, mask_unpack, maths, simd_array_cast, reductions);
+REGISTER_TYPED_TEST_CASE_P(simd_value, meta, elements, element_lvalue, copy_to_from, copy_to_from_masked, construct_masked, arithmetic, compound_assignment, comparison, mask_elements, mask_element_lvalue, mask_copy_to_from, mask_unpack, maths, simd_array_cast, reductions);
 
 typedef ::testing::Types<
 

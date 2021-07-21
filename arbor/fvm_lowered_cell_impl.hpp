@@ -242,7 +242,13 @@ fvm_integration_result fvm_lowered_cell_impl<Backend>::integrate(
         state_->zero_currents();
         PL();
         for (auto& m: mechanisms_) {
-            m->deliver_events();
+            auto state = state_->deliverable_events.marked_events();
+            arb_deliverable_event_stream events;
+            events.n_streams = state.n;
+            events.begin     = state.begin_offset;
+            events.end       = state.end_offset;
+            events.events    = (arb_deliverable_event_data*) state.ev_data; // FIXME(TH): This relies on bit-castability
+            m->deliver_events(events);
             m->update_current();
         }
 
@@ -312,6 +318,7 @@ fvm_integration_result fvm_lowered_cell_impl<Backend>::integrate(
         PL();
 
         std::swap(state_->time_to, state_->time);
+        state_->time_ptr = state_->time.data();
 
         // Check for non-physical solutions:
 
@@ -442,7 +449,7 @@ fvm_initialization_data fvm_lowered_cell_impl<Backend>::initialize(
 
     // Mechanism instantiator helper.
     auto mech_instance = [&catalogue](const std::string& name) {
-        return catalogue->instance<backend>(name);
+        return catalogue->instance(backend::kind, name);
     };
 
     // Check for physically reasonable membrane volages?
@@ -492,7 +499,7 @@ fvm_initialization_data fvm_lowered_cell_impl<Backend>::initialize(
     }
 
     // Create shared cell state.
-    // (SIMD padding requires us to check each mechanism for alignment/padding constraints.)
+    // Shared state vectors should accommodate each mechanism's data alignment requests.
 
     unsigned data_alignment = util::max_value(
         util::transform_view(keys(mech_data.mechanisms),
@@ -543,7 +550,7 @@ fvm_initialization_data fvm_lowered_cell_impl<Backend>::initialize(
         // to convert from the mechanism current contribution units to A/m².
 
         switch (config.kind) {
-        case mechanismKind::point:
+        case arb_mechanism_kind_point:
             // Point mechanism contributions are in [nA]; CV area A in [µm^2].
             // F = 1/A * [nA/µm²] / [A/m²] = 1000/A.
 
@@ -564,28 +571,28 @@ fvm_initialization_data fvm_lowered_cell_impl<Backend>::initialize(
                 }
             }
             break;
-        case mechanismKind::density:
+        case arb_mechanism_kind_density:
             // Current density contributions from mechanism are already in [A/m²].
 
             for (auto i: count_along(layout.cv)) {
                 layout.weight[i] = config.norm_area[i];
             }
             break;
-        case mechanismKind::revpot:
+        case arb_mechanism_kind_reversal_potential:
             // Mechanisms that set reversal potential should not be contributing
             // to any currents, so leave weights as zero.
             break;
         }
 
         auto minst = mech_instance(name);
-        minst.mech->instantiate(mech_id++, *state_, minst.overrides, layout);
+        state_->instantiate(*minst.mech, mech_id++, minst.overrides, layout);
         mechptr_by_name[name] = minst.mech.get();
 
         for (auto& pv: config.param_values) {
-            minst.mech->set_parameter(pv.first, pv.second);
+            state_->set_parameter(*minst.mech, pv.first, pv.second);
         }
 
-        if (config.kind==mechanismKind::revpot) {
+        if (config.kind==arb_mechanism_kind_reversal_potential) {
             revpot_mechanisms_.push_back(mechanism_ptr(minst.mech.release()));
         }
         else {
@@ -741,7 +748,7 @@ struct probe_resolution_data {
         mechanism* m = util::value_by_key(mech_instance_by_name, name).value_or(nullptr);
         if (!m) return nullptr;
 
-        const fvm_value_type* data = Backend::mechanism_field_data(m, state_var);
+        const fvm_value_type* data = state->mechanism_state_data(*m, state_var);
         if (!data) throw cable_cell_error("no state variable '"+state_var+"' in mechanism '"+name+"'");
 
         return data;

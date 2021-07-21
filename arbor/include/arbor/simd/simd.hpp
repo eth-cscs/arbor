@@ -378,6 +378,7 @@ namespace detail {
 
     public:
         static constexpr unsigned width = simd_traits<Impl>::width;
+        static constexpr unsigned min_align = simd_traits<Impl>::min_align;
 
         template <typename Other>
         friend struct simd_impl;
@@ -982,6 +983,12 @@ template <typename S, std::enable_if_t<is_simd<S>::value, int> = 0>
 inline constexpr int width(const S a = S{}) {
     return S::width;
 };
+
+template <typename S, std::enable_if_t<is_simd<S>::value, int> = 0>
+inline constexpr unsigned min_align(const S a = S{}) {
+    return S::min_align;
+};
+
 
 // Gather/scatter indexed memory specification.
 
